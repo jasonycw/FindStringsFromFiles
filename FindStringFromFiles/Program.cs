@@ -14,32 +14,39 @@ namespace FindStringFromFiles
     {
         static void Main()
         {
-            string sourceFolder = @".\searchFolder";
-            string searchTexts = @".\searchTexts.txt";
+            // Put all the files that needed to be searched here
+            string search_files_folder = @".\searchFolder";
+            // Put all the string that needed to be find here, 1 line == 1 string
+            string search_texts_file = @".\searchTexts.txt";
+
+            // Founded files will be copied here
+            string resultsFolder = @".\Results\";
+            // Result will be logged here
+            string resultsTxt = @".\Results.txt";
             List<string> result = new List<string>();
             
-            // Get all search strings from text file
-            if (!File.Exists(searchTexts))
+            // Get all search strings from the text file
+            if (!File.Exists(search_texts_file))
             {
-                Console.WriteLine(searchTexts + " is needed to import the search string(s)!");
+                Console.WriteLine(search_texts_file + " is needed to import the search string(s)!");
                 Console.ReadKey();
                 return;
             }
-            var searchList = File.ReadLines(searchTexts);
+            var searchList = File.ReadLines(search_texts_file);
             Console.WriteLine(searchList.Count() + " search string(s) are imported.");
 
-            // Get all file names from search folder
-            if (!Directory.Exists(sourceFolder))
+            // Get all file names from the search folder
+            if (!Directory.Exists(search_files_folder))
             {
-                Console.WriteLine(sourceFolder + " is needed for putting the files!");
+                Console.WriteLine(search_files_folder + " is needed for putting the files!");
                 Console.ReadKey();
                 return;
             }
             List<string> fileNameList = new List<string>();
-            AddFileNamesToList(sourceFolder, fileNameList);
-            Console.WriteLine(fileNameList.Count() + " file name(s) are found in " + sourceFolder);
+            AddFileNamesToList(search_files_folder, fileNameList);
+            Console.WriteLine(fileNameList.Count() + " file name(s) are found in " + search_files_folder);
 
-            // Get all contents from search files
+            // Get all contents from the search files
             Console.WriteLine("\nStart importing data...");
             List<string> contentList = new List<string>();
             foreach (string fileName in fileNameList)
@@ -51,7 +58,11 @@ namespace FindStringFromFiles
             Console.WriteLine("Importing of " + contentList.Count() + " file(s) from searchFolder is done!");
             Console.WriteLine("\nStart searching...");
 
-            // Search each string in all files' content and do stuffs
+            // Search each string in all files' content and do some stuffs
+            if (!Directory.Exists(resultsFolder))
+            {
+                Directory.CreateDirectory(resultsFolder);
+            }
             foreach (string searchWord in searchList)
             {
                 bool found = false;
@@ -64,11 +75,7 @@ namespace FindStringFromFiles
                         // Add the log to result string
                         result.Add(string.Format("{0,-40}", searchWord) + "\tFound: \t" + fileNameList[i]);
 
-                        string resultsFolder = @".\Results\";
-                        if (!Directory.Exists(resultsFolder))
-                        {
-                            Directory.CreateDirectory(resultsFolder);
-                        }
+                        // Copy the file to result folder
                         File.Copy(fileNameList[i], Path.Combine(resultsFolder, searchWord + "_in_" + Path.GetFileName(fileNameList[i])), true);
                     }
                 }
@@ -78,9 +85,10 @@ namespace FindStringFromFiles
                 }
             }
 
+            // Save the result file and open it
+            System.IO.File.WriteAllLines(resultsTxt, result);
+            Process.Start(resultsTxt);
             Console.WriteLine("-----   DONE    -----");
-            System.IO.File.WriteAllLines(@".\Results.txt", result);
-            Process.Start(@".\Results.txt");
         }
 
         public static void AddFileNamesToList(string sourceDir, List<string> allFiles)
