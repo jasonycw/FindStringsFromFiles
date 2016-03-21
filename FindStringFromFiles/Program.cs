@@ -29,6 +29,8 @@ namespace FindStringFromFiles
             if (!File.Exists(search_texts_file))
             {
                 Console.WriteLine(search_texts_file + " is needed to import the search string(s)!");
+                File.WriteAllLines(search_texts_file, new List<string>());
+                Console.WriteLine(search_texts_file + " is created for you.");
                 Console.ReadKey();
                 return;
             }
@@ -39,6 +41,8 @@ namespace FindStringFromFiles
             if (!Directory.Exists(search_files_folder))
             {
                 Console.WriteLine(search_files_folder + " is needed for putting the files!");
+                Directory.CreateDirectory(search_files_folder);
+                Console.WriteLine(search_files_folder + " is created for you.");
                 Console.ReadKey();
                 return;
             }
@@ -86,7 +90,7 @@ namespace FindStringFromFiles
             }
 
             // Save the result file and open it
-            System.IO.File.WriteAllLines(resultsTxt, result);
+            File.WriteAllLines(resultsTxt, result);
             Process.Start(resultsTxt);
             Console.WriteLine("-----   DONE    -----");
         }
